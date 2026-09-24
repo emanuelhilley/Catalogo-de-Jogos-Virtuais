@@ -60,7 +60,18 @@ Especialização para jogos focados em cooperação e trabalho em equipe.
 
 ---
 
-#### 5. Classe de Organização: `Colecao`
+#### 5. Subclasse: `JogoCampanhaCoop` (Herda de `JogoCampanha` e `JogoCooperativo`)
+Representa jogos focados na história principal que podem ser concluídos cooperativamente em grupo.
+
+| Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
+| :--- | :--- | :--- | :--- | :--- |
+| **Atributo** | `modo_progresso_compartilhado` | `bool` | Público (`+`) | Indica se o progresso da história conta para todos os jogadores |
+| **Método** | `resumo_coop()`| `str` | Público (`+`) | Exibe o total de capítulos concluídos junto com o limite de jogadores |
+
+
+---
+
+#### 6. Classe de Organização: `Colecao`
 Responsável por agrupar e gerenciar listas personalizadas de jogos no catálogo.
 
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
@@ -73,7 +84,7 @@ Responsável por agrupar e gerenciar listas personalizadas de jogos no catálogo
 
 ---
 
-#### 6. Classe de Organização: `Usuario` (Opcional)
+#### 7. Classe de Organização: `Usuario` (Opcional)
 Representa o perfil do usuário e gerencia suas coleções pessoais.
 
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
