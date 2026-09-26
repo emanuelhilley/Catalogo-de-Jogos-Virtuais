@@ -1,6 +1,7 @@
 # Catálogo de Jogos Virtuais
 
 ## Sistema projetado para **auxiliar jogadores na organização** e no **acompanhamento da sua coleção pessoal** de **jogos.**
+## Muitas vezes, quem joga em diversas **plataformas** (como PC, consoles e dispositivos móveis) encontra dificuldades para acompanhar o **progresso** dos seus **jogos**, registrar **metas concluídas** ou analisar o **tempo investido em cada experiência.** Este sistema resolve esse problema ao centralizar todas essas informações em um único **catálogo.**
 
 ### O objetivo do sistema é permitir que o utilizador consiga:
 
