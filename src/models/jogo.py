@@ -1,6 +1,6 @@
 """ classe base |Jogo| e suas Subclasses. """
 
-class jogo: 
+class Jogo: 
     """ classe que representa um jogo genérico no catágolo
 
     atributos da Classe Jogo:
@@ -42,9 +42,10 @@ class JogoCampanha:
     """
 
     def __init__(self, titulo: str, genero: str, plataforma: str):
+        super().__init__(titulo, genero, plataforma)
         self.capitulos_concluidos = 0 
         self.percentual_conclusao = 0.0 
-        super().__init__(titulo, genero, plataforma) 
+         
 
 class JogoCompetitivo: 
     """
@@ -58,11 +59,12 @@ class JogoCompetitivo:
     """
 
     def __init__(self, titulo: str, genero: str, plataforma: str, ranking: str = "Unranked"): # parâmetro opicional. SE não é informado ranking == Unranked (sem rank)
+        super().__init__(titulo, genero, plataforma)
         self.partidas_jogadas = 0
         self.vitorias = 0
         self.derrotas = 0
         self.ranking = ranking
-        super().__init__(titulo, genero, plataforma)
+        
 
     def taxa_vitoria(self) -> float:
         """Calcula e retorna a porcentagem de vitória de um jogador."""
@@ -78,11 +80,12 @@ class JogoCooperativo:
     """
 
     def __init__(self, titulo: str, genero: str, plataforma: str, max_jogadores: int):
+        super().__init__(titulo,genero,plataforma)
         self.sessoes_cooperativas = 0 
         self.max_jogadores = max_jogadores
-        super().__init__(titulo,genero,plataforma)
+        
 
-class JogoCampanhaCoop: 
+class JogoCampanhaCoop(JogoCampanha, JogoCooperativo): 
     """
     Destinado a jogos de trabalho em equipe junto a modo campanha
     
@@ -90,10 +93,10 @@ class JogoCampanhaCoop:
     modo_progresso_compartilhado (bool): Se o progresso salva para todos.
     """
 
-    def __init__(self, titulo: str, genero: str, plataforma: str, max_jogadoress: int, progresso_compartilhado: bool = True): # se não for informado que o jogo fica salvo para os dois jogadores, retorna True
+    def __init__(self, titulo: str, genero: str, plataforma: str, max_jogadores: int, progresso_compartilhado: bool = True): # se não for informado que o jogo fica salvo para os dois jogadores, retorna True
         # inicializa as duas classes pai:
-        self.JogoCampanha.__init__(self,titulo, genero, plataforma)
-        self.jogoCooperativo.__init__(self, titulo, genero, plataforma, max_jogadoress)
+        JogoCampanha.__init__(self,titulo, genero, plataforma)
+        JogoCooperativo.__init__(self, titulo, genero, plataforma, max_jogadores)
         self.modo_progresso_compartilhado = progresso_compartilhado
 
     def resumo_coop(self) -> str:

@@ -80,8 +80,10 @@ Responsável por agrupar e gerenciar listas personalizadas de jogos no catálogo
 | **Atributo** | `nome` | `str` | Público (`+`) | Nome da lista (ex: "Favoritos", "Zerar em 2026") |
 | **Atributo** | `jogos` | `list[Jogo]` | Público (`+`) | Lista armazenando os objetos do tipo `Jogo` |
 | **Método** | `adicionar_jogo()` | `None` | Público (`+`) | Insere um novo objeto de jogo na coleção |
-| **Método** | `remover_jogo()` | `None` | Público (`+`) | Remove um jogo específico da coleção |
+| **Método** | `remover_jogo()` | `bool` | Público (`+`) | Remove um jogo específico da coleção |
 | **Método** | `listar_jogos()` | `list[Jogo]` | Público (`+`) | Retorna a lista contendo todos os jogos da coleção |
+| **Método** | `buscar_por_titulo()` | `Optional[Jogo]` | Público (`+`) | Busca e retorna um jogo específico pelo título |
+| **Método** | `atualizar_jogo()` | `bool` | Público (`+`) | Atualiza atributos de um jogo existente na coleção |
 
 ---
 
@@ -93,4 +95,21 @@ Representa o perfil do usuário e gerencia suas coleções pessoais.
 | **Atributo** | `nome` | `str` | Público (`+`) | Nome ou apelido do jogador |
 | **Atributo** | `colecoes` | `list[Colecao]` | Público (`+`) | Lista contendo as coleções criadas pelo usuário |
 | **Método** | `criar_colecao()` | `None` | Público (`+`) | Instancia e adiciona uma nova `Colecao` ao perfil |
-| **Método** | `remover_colecao()`| `None` | Público (`+`) | Elimina uma `coleção` existente da lista |
+| **Método** | `listar_colecoes()`| `List[Colecao]` | Público (`+`) | Retorna todas as coleções do usuário |
+| **Método** | `remover_colecao()`| `bool` | Público (`+`) | Elimina uma `coleção` existente da lista |
+| **Método** | `buscar_colecao()`| `Optional[Colecao]` | Público (`+`) | Busca uma coleção específica pelo nome |
+
+
+
+## Estrutura do Projeto
+
+```text
+.
+├── src/
+│   ├── __init__.py
+│   └── models/
+│       ├── __init__.py
+│       ├── jogo.py
+│       ├── colecao.py
+│       └── usuario.py
+└── README.md
