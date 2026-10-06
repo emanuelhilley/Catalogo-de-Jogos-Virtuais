@@ -87,7 +87,7 @@ class Jogo:
 
 # -=-=-= SUBCLASSES POR ESTILO DE JOGO -=-=-=
 
-class JogoCampanha: 
+class JogoCampanha(Jogo): 
     """
     Destinado para jogos de modo história.
 
@@ -102,7 +102,7 @@ class JogoCampanha:
         self.percentual_conclusao = 0.0 
          
 
-class JogoCompetitivo: 
+class JogoCompetitivo(Jogo): 
     """
     Subclasse destinado para jogos de pvp e rankeadas.
     
@@ -127,7 +127,7 @@ class JogoCompetitivo:
             return 0.0
         return (self.vitorias / self.partidas_jogadas) * 100
 
-class JogoCooperativo: 
+class JogoCooperativo(Jogo): 
     """
     Destindo a jogos de trabalho em equipe.
     
@@ -142,7 +142,7 @@ class JogoCooperativo:
         self.max_jogadores = max_jogadores
         
 
-class JogoCampanhaCoop(JogoCampanha, JogoCooperativo): 
+class JogoCampanhaCoop(JogoCampanha,JogoCooperativo): 
     """
     Destinado a jogos de trabalho em equipe junto a modo campanha
     

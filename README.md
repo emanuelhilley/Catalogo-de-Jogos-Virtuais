@@ -104,7 +104,7 @@ Representa o perfil do usuário e gerencia suas coleções pessoais.
 ## Estrutura do Projeto
 
 ```text
-.
+
 ├── src/
 │   ├── __init__.py
 │   └── models/
@@ -112,4 +112,9 @@ Representa o perfil do usuário e gerencia suas coleções pessoais.
 │       ├── jogo.py
 │       ├── colecao.py
 │       └── usuario.py
+│ 
+│── tests/
+│   ├── __init__.py
+│   └── test_jogo.py
+│
 └── README.md
