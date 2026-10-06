@@ -19,30 +19,54 @@
 ## UML
 
 #### 1. Classe Base: `Jogo`
+Representa a classe base para todos os jogos do catálogo, aplicando encapsulamento com getters e setters.
+
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
-| :--- | :--- | :--- | :--- | :--- |
-| **Atributo** | `titulo` | `str` | Público (`+`) | Nome do jogo |
-| **Atributo** | `genero` | `str` | Público (`+`) | Gênero do jogo |
-| **Atributo** | `plataforma` | `str` | Público (`+`) | Plataforma (PC, Console, Mobile) |
-| **Atributo** | `status` | `str` | Público (`+`) | Estado atual ("NÃO INICIADO", "JOGANDO", "FINALIZADO")    |
-| **Atributo** | `horas_jogadas` | `float` | Protegido (`#`) | Total de horas acumuladas (≥ 0) |
-| **Atributo** | `avaliacao` | `float` | Protegido (`#`) | Nota de 0 a 10 (permitida apenas se o jogo estiver "FINALIZADO") |
+|---|---|---|---|---|
+| **Atributo** | `_titulo` | `str` | Privado (`-`) | Nome do jogo |
+| **Atributo** | `_genero` | `str` | Privado (`-`) | Gênero do jogo |
+| **Atributo** | `_plataforma` | `str` | Privado (`-`) | Plataforma (PC, Console, Mobile) |
+| **Atributo** | `_status` | `str` | Privado (`-`) | Estado atual ("NÃO INICIADO", "JOGANDO", "FINALIZADO") |
+| **Atributo** | `_horas_jogadas` | `float` | Protegido (`#`) | Total de horas acumuladas |
+| **Atributo** | `_avaliacao` | `float` | Protegido (`#`) | Nota de 0 a 10 (permitida apenas se o jogo estiver "FINALIZADO") |
 | **Método** | `atualizar_progresso()` | `None` | Público (`+`) | Atualiza horas e altera o status |
 | **Método** | `reiniciar()` | `None` | Público (`+`) | Zera horas e volta para "JOGANDO" |
 | **Método** | `avaliar()` | `None` | Público (`+`) | Atribui a nota após validar se o jogo foi finalizado |
 
+---
+
+#### 1.1. Subclasses por Plataforma (Herdam de `Jogo`)
+Especializações para jogos de acordo com o dispositivo/plataforma.
+
+| Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
+|---|---|---|---|---|
+| **Subclasse** | `JogoPc` | `Jogo` | Público (`+`) | Destinado para jogos de PC |
+| **Atributo** | `requisitos_minimos` | `str` | Público (`+`) | Especificações técnicas mínimas exigidas |
+| **Atributo** | `loja_digital` | `str` | Público (`+`) | Loja onde o jogo foi adquirido (ex: "Steam", "Epic Games") |
+| **Subclasse** | `JogoConsole` | `Jogo` | Público (`+`) | Destinado para jogos de Console |
+| **Atributo** | `nome_console` | `str` | Público (`+`) | Nome do console (ex: "PlayStation 5", "Xbox Series X") |
+| **Atributo** | `midia_fisica` | `bool` | Público (`+`) | Indica se o jogo é em disco/cartucho físico |
+| **Subclasse** | `JogoMobile` | `Jogo` | Público (`+`) | Destinado para jogos mobiles |
+| **Atributo** | `tamanho_mb` | `float` | Público (`+`) | Tamanho de armazenamento do jogo em Megabytes |
+| **Atributo** | `compras_no_app` | `bool` | Público (`+`) | Indica se o jogo possui microtransações |
+
+---
 
 #### 2. Subclasse: `JogoCampanha` (Herda de `Jogo`)
+Especialização para jogos focados em modo história e campanha single-player.
+
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
-| :--- | :--- | :--- | :--- | :--- |
-| **Atributo** | `capitulos_concluidos`| `int` | Público (`+`) | Total de capítulos finalizados |
+|---|---|---|---|---|
+| **Atributo** | `capitulos_concluidos` | `int` | Público (`+`) | Total de capítulos finalizados |
 | **Atributo** | `percentual_conclusao` | `float` | Público (`+`) | Progresso da história (0 a 100%) |
+
+---
 
 #### 3. Subclasse: `JogoCompetitivo` (Herda de `Jogo`)
 Especialização para jogos focados em partidas ranqueadas e confrontos contra outros jogadores.
 
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
-| :--- | :--- | :--- | :--- | :--- |
+|---|---|---|---|---|
 | **Atributo** | `partidas_jogadas` | `int` | Público (`+`) | Total de partidas disputadas |
 | **Atributo** | `vitorias` | `int` | Público (`+`) | Quantidade total de vitórias |
 | **Atributo** | `derrotas` | `int` | Público (`+`) | Quantidade total de derrotas |
@@ -55,9 +79,9 @@ Especialização para jogos focados em partidas ranqueadas e confrontos contra o
 Especialização para jogos focados em cooperação e trabalho em equipe.
 
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
-| :--- | :--- | :--- | :--- | :--- |
+|---|---|---|---|---|
 | **Atributo** | `max_jogadores` | `int` | Público (`+`) | Limite máximo de pessoas no grupo |
-| **Atributo** | `sessoes_cooperativas`| `int` | Público (`+`) | Número de sessões jogadas em equipe |
+| **Atributo** | `sessoes_cooperativas` | `int` | Público (`+`) | Número de sessões jogadas em equipe |
 
 ---
 
@@ -65,10 +89,9 @@ Especialização para jogos focados em cooperação e trabalho em equipe.
 Representa jogos focados na história principal que podem ser concluídos cooperativamente em grupo.
 
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
-| :--- | :--- | :--- | :--- | :--- |
+|---|---|---|---|---|
 | **Atributo** | `modo_progresso_compartilhado` | `bool` | Público (`+`) | Indica se o progresso da história conta para todos os jogadores |
-| **Método** | `resumo_coop()`| `str` | Público (`+`) | Exibe o total de capítulos concluídos junto com o limite de jogadores |
-
+| **Método** | `resumo_coop()` | `str` | Público (`+`) | Exibe o total de capítulos concluídos junto com o limite de jogadores |
 
 ---
 
@@ -76,30 +99,40 @@ Representa jogos focados na história principal que podem ser concluídos cooper
 Responsável por agrupar e gerenciar listas personalizadas de jogos no catálogo.
 
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
-| :--- | :--- | :--- | :--- | :--- |
+|---|---|---|---|---|
 | **Atributo** | `nome` | `str` | Público (`+`) | Nome da lista (ex: "Favoritos", "Zerar em 2026") |
-| **Atributo** | `jogos` | `list[Jogo]` | Público (`+`) | Lista armazenando os objetos do tipo `Jogo` |
+| **Atributo** | `_jogos` | `list[Jogo]` | Privado (`-`) | Lista privada armazenando os objetos do tipo `Jogo` |
 | **Método** | `adicionar_jogo()` | `None` | Público (`+`) | Insere um novo objeto de jogo na coleção |
-| **Método** | `remover_jogo()` | `bool` | Público (`+`) | Remove um jogo específico da coleção |
+| **Método** | `remover_jogo()` | `bool` | Público (`+`) | Remove um jogo específico da coleção pelo título |
 | **Método** | `listar_jogos()` | `list[Jogo]` | Público (`+`) | Retorna a lista contendo todos os jogos da coleção |
 | **Método** | `buscar_por_titulo()` | `Optional[Jogo]` | Público (`+`) | Busca e retorna um jogo específico pelo título |
-| **Método** | `atualizar_jogo()` | `bool` | Público (`+`) | Atualiza atributos de um jogo existente na coleção |
+| **Método** | `atualizar_jogo()` | `bool` | Público (`+`) | Atualiza atributos de um jogo existente utilizando `**kwargs` |
+| **Método** | `total_jogos()` | `int` | Público (`+`) | Retorna a quantidade total de jogos na coleção |
+| **Método** | `total_horas_jogadas()` | `float` | Público (`+`) | Retorna a soma total de horas jogadas na coleção |
 
 ---
 
-#### 7. Classe de Organização: `Usuario` (Opcional)
+#### 7. Classe de Organização: `Usuario`
 Representa o perfil do usuário e gerencia suas coleções pessoais.
 
 | Elemento | Nome | Tipo / Retorno | Visibilidade | Descrição |
-| :--- | :--- | :--- | :--- | :--- |
+|---|---|---|---|---|
 | **Atributo** | `nome` | `str` | Público (`+`) | Nome ou apelido do jogador |
-| **Atributo** | `colecoes` | `list[Colecao]` | Público (`+`) | Lista contendo as coleções criadas pelo usuário |
-| **Método** | `criar_colecao()` | `None` | Público (`+`) | Instancia e adiciona uma nova `Colecao` ao perfil |
-| **Método** | `listar_colecoes()`| `List[Colecao]` | Público (`+`) | Retorna todas as coleções do usuário |
-| **Método** | `remover_colecao()`| `bool` | Público (`+`) | Elimina uma `coleção` existente da lista |
-| **Método** | `buscar_colecao()`| `Optional[Colecao]` | Público (`+`) | Busca uma coleção específica pelo nome |
+| **Atributo** | `_email` | `str` | Privado (`-`) | E-mail do usuário validado via property/setter |
+| **Atributo** | `_colecoes` | `list[Colecao]` | Privado (`-`) | Lista privada contendo as coleções criadas pelo usuário |
+| **Método** | `criar_colecao()` | `Colecao` | Público (`+`) | Instancia e adiciona uma nova `Colecao` ao perfil |
+| **Método** | `listar_colecoes()` | `list[Colecao]` | Público (`+`) | Retorna todas as coleções do usuário |
+| **Método** | `remover_colecao()` | `bool` | Público (`+`) | Elimina uma coleção existente no perfil |
+| **Método** | `buscar_colecao()` | `Optional[Colecao]` | Público (`+`) | Busca e retorna uma coleção específica pelo nome |
 
+##  Testes Automatizados
 
+Para rodar os testes automatizados do projeto, execute o comando abaixo no terminal:
+
+```bash
+pytest
+
+```
 
 ## Estrutura do Projeto
 
@@ -115,6 +148,8 @@ Representa o perfil do usuário e gerencia suas coleções pessoais.
 │ 
 │── tests/
 │   ├── __init__.py
-│   └── test_jogo.py
+│   ├── test_colecao.py
+│   ├── test_jogo.py
+│   └── test_usuario.py
 │
 └── README.md
