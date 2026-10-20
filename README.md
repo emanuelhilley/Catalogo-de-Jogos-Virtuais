@@ -133,23 +133,29 @@ Para rodar os testes automatizados do projeto, execute o comando abaixo no termi
 pytest
 
 ```
+###  O projeto conta com 17 testes automatizados validados via pytest, cobrindo as regras de negócio das classes (Jogo, Colecao, Usuario), a persistência em JSON e a geração do relatório estatístico.
 
 ## Estrutura do Projeto
 
 ```text
 
+├── data/
+│   └── colecoes.json
 ├── src/
 │   ├── __init__.py
-│   └── models/
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── colecao.py
+│   │   ├── jogo.py
+│   │   └── usuario.py
+│   └── utils/
 │       ├── __init__.py
-│       ├── jogo.py
-│       ├── colecao.py
-│       └── usuario.py
-│ 
-│── tests/
+│       ├── persistencia.py
+│       └── relatorio.py
+├── tests/
 │   ├── __init__.py
 │   ├── test_colecao.py
 │   ├── test_jogo.py
+│   ├── test_persistencia.py
 │   └── test_usuario.py
-│
 └── README.md
