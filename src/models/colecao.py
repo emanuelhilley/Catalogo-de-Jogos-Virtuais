@@ -1,5 +1,5 @@
 """ Organização e gerenciamento da lista de jogos (CRUD)."""
-from typing import List, Optional
+from typing import Optional
 from src.models.jogo import Jogo
 
 class Colecao: 
@@ -7,13 +7,13 @@ class Colecao:
     def __init__(self,nome: str):
         self.nome = nome  
         """ guarda o nome da lista """
-        self._jogos: List[Jogo] = [] 
+        self._jogos: list[Jogo] = [] 
         """ lista vazia que vai guardar os jogos """
 
     # -=-=-= ENCAPSULAMENTO (@property) -=-=-=
 
     @property
-    def jogos(self) -> List[Jogo]:
+    def jogos(self) -> list[Jogo]:
         """Getter: Retorna uma cópia da lista de jogos para proteger o atributo interno."""
         return self._jogos.copy()
 
@@ -44,7 +44,7 @@ class Colecao:
             return True
         return False
 
-    def listar_jogos(self) -> List[Jogo]: # read
+    def listar_jogos(self) -> list[Jogo]: # read
         """ retorna todos os jogos guardados na coleção """
         return self.jogos
 
@@ -73,6 +73,58 @@ class Colecao:
             else:
                 raise AttributeError(f"O jogo não possui o atributo {atributo}.")
         return True
+    
+    # -=-=-=     FILTROS E ORDENAÇÕES    -=-=-=
+
+    # Todos os três métodos de filtragem seguem a mesma lógica básica: 
+    # criar uma lista vazia, percorrer os jogos um a um e guardar apenas os que correspondem ao critério.
+
+    def filtrar_por_genero(self, genero: str) -> list[Jogo]:
+        """Retorna apenas os jogos que pertencem ao gênero informado."""
+        jogos_filtrados = []
+        for jogo in self._jogos: # Percorre cada jogo salvo na coleção.
+            if jogo.genero.lower() == genero.lower(): # Compara o gênero do jogo com o gênero buscado.
+                jogos_filtrados.append(jogo)
+        return jogos_filtrados # Devolve a lista final com os jogos filtrados.
+
+    def filtrar_por_status(self, status: str) -> list[Jogo]:
+        """Retorna os jogos filtrados pelo status (ex: 'NÃO INICIADO', 'JOGANDO', 'FINALIZADO')."""
+        jogos_filtrados = []
+        for jogo in self._jogos:
+            if jogo.status.upper() == status.upper():
+                jogos_filtrados.append(jogo)
+        return jogos_filtrados
+
+    def filtrar_por_plataforma(self, plataforma: str) -> list[Jogo]:
+        """Retorna os jogos filtrados pela plataforma."""
+        jogos_filtrados = []
+        for jogo in self._jogos:
+            if jogo.plataforma.lower() == plataforma.lower():
+                jogos_filtrados.append(jogo)
+        return jogos_filtrados
+
+    def ordenar_por_titulo(self) -> list[Jogo]:
+        """Retorna a lista de jogos ordenada alfabeticamente pelo título."""
+        def obter_titulo(jogo):
+            return jogo.titulo.lower() # recebe um jogo e extrai o seu título em letras minúsculas.
+
+        return sorted(self._jogos, key=obter_titulo) # sorted() pega a lista _jogos e usa a função obter_titulo para comparar os títulos de cada jogo, retornando uma nova lista organizada em ordem alfabética
+
+    def ordenar_por_horas(self, decrescente: bool = True) -> list[Jogo]:
+        """Retorna a lista de jogos ordenada pela quantidade de horas jogadas."""
+        def obter_horas(jogo):
+            return jogo.horas_jogadas
+
+        return sorted(self._jogos, key=obter_horas, reverse=decrescente)
+
+    def ordenar_por_avaliacao(self, decrescente: bool = True) -> list[Jogo]:
+        """Retorna a lista de jogos ordenada pela avaliação dada."""
+        def obter_avaliacao(jogo):
+            if jogo.avaliacao is not None:
+                return jogo.avaliacao
+            return 0.0
+
+        return sorted(self._jogos, key=obter_avaliacao, reverse=decrescente)
 
     # -=-=-= MÉTODOS ESPECIAIS E ESTATÍSTICAS -=-=-=
 
