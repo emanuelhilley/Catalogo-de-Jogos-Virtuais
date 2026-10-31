@@ -53,7 +53,7 @@ class Jogo:
     def atualizar_progresso(self, horas: float) -> None:
         """Soma horas jogadas e altera o status para 'JOGANDO' se estiver em 'NÃO INICIADO'"""
         if horas <= 0:
-            raise ValueError("Não pode atriubir um número negativo! As horas devem ser maiores que zero.")
+            raise ValueError("Não pode atribuir um número negativo! As horas devem ser maiores que zero.")
 
         self.horas_jogadas += horas # usa o setter para validar
         if self.status == "NÃO INICIADO":
