@@ -2,13 +2,21 @@ from src.models.colecao import Colecao
 
 def gerar_relatorio_geral(colecoes: list[Colecao]) -> dict:
     """Gera dados estatísticos sobre o catálogo de jogos do utilizador."""
-    total_jogos = sum(col.total_jogos() for col in colecoes)
-    total_horas = sum(col.total_horas_jogadas() for col in colecoes)
+    jogos_unicos = {}
+
+    for col in colecoes:
+        for jogo in col.listar_jogos():
+            chave = jogo.titulo.strip().lower()
+            if chave not in jogos_unicos:
+                jogos_unicos[chave] = jogo
+
+    total_jogos = len(jogos_unicos)
+    total_horas = sum(j.horas_jogadas for j in jogos_unicos.values())
     
     return {
         "total_colecoes": len(colecoes),
         "total_jogos": total_jogos,
-        "total_horas_jogadas": total_horas
+        "total_horas_jogadas": round(total_horas, 1)
     }
 
 def exibir_relatorio_terminal(colecoes: list[Colecao]) -> None:
