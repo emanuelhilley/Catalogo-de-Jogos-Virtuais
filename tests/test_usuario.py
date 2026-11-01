@@ -8,7 +8,7 @@ def test_validacao_usuario_e_email():
     assert usuario.nome == "Emanuel"
     assert usuario.email == "Emanuel@gmail.com"
 
-    with pytest.raises(ValueError, match="e-mail fornecido é inválido"):
+    with pytest.raises(ValueError, match="O email só pode contar 1 @."):
         usuario.email = "email_invalido"
 
 def test_gerenciamento_colecoes_usuario():

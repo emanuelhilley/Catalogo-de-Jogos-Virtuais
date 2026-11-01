@@ -52,7 +52,7 @@ class Usuario:
             raise ValueError("Erro no email fornecido: Domínio precisa de uma extensão")
         if ".." in valor:
             raise ValueError("Erro no email fornecido: sequencia de pontos.")
-        if usuario_local.startwith(".") or usuario_local.endswith(".") or dominio.startswith(".") or dominio.endswith("."):
+        if usuario_local.startswith(".") or usuario_local.endswith(".") or dominio.startswith(".") or dominio.endswith("."):
             raise ValueError("Erro no email fornecido: não pode haver pontos nas extremidades")
         self._email = valor
 
