@@ -3,6 +3,7 @@
 import pytest
 from src.models.jogo import Jogo
 from src.models.colecao import Colecao
+from src.models.excecoes import JogoDuplicadoError
 
 
 def test_criacao_colecao():
@@ -59,3 +60,75 @@ def test_remover_jogo():
     assert removido is True
     assert colecao.total_jogos() == 0
     assert colecao.buscar_por_titulo("Doom") is None
+
+
+# -=-=-= NOVOS TESTES: exceção customizada, busca, filtros e ordenação =-=-=-
+
+def test_duplicado_levanta_excecao_customizada():
+    """Garante que o duplicado levanta JogoDuplicadoError (que também é um ValueError)."""
+    colecao = Colecao("Minha Lista")
+    colecao.adicionar_jogo(Jogo("Portal 2", "Puzzle", "PC"))
+
+    with pytest.raises(JogoDuplicadoError):
+        colecao.adicionar_jogo(Jogo("PORTAL 2", "Puzzle", "pc"))
+
+
+def test_buscar_por_parte_do_titulo():
+    """Testa a busca de jogos por um trecho do título."""
+    colecao = Colecao("Geral")
+    colecao.adicionar_jogo(Jogo("Minecraft", "Sandbox", "PC"))
+    colecao.adicionar_jogo(Jogo("Terraria", "Sandbox", "PC"))
+    colecao.adicionar_jogo(Jogo("Doom", "FPS", "PC"))
+
+    encontrados = colecao.buscar_por_parte_do_titulo("CRAFT")
+
+    assert len(encontrados) == 1
+    assert encontrados[0].titulo == "Minecraft"
+    assert colecao.buscar_por_parte_do_titulo("xyz") == []
+
+
+def test_filtrar_por_nota_minima():
+    """Testa o filtro por nota mínima (jogos sem nota ficam de fora)."""
+    colecao = Colecao("Geral")
+    jogo1 = Jogo("Hades", "Rogue-like", "PC")
+    jogo2 = Jogo("Doom", "FPS", "PC")
+    jogo3 = Jogo("Celeste", "Plataforma", "PC")
+
+    for jogo, nota in [(jogo1, 9.0), (jogo2, 5.0)]:
+        jogo.atualizar_progresso(2.0)
+        jogo.finalizar()
+        jogo.avaliar(nota)
+
+    for jogo in (jogo1, jogo2, jogo3):
+        colecao.adicionar_jogo(jogo)
+
+    filtrados = colecao.filtrar_por_nota_minima(8.0)
+
+    assert filtrados == [jogo1]
+
+
+def test_ordenar_por_ano():
+    """Testa a ordenação por ano de lançamento (jogos sem ano ficam no fim)."""
+    colecao = Colecao("Geral")
+    antigo = Jogo("Doom", "FPS", "PC")
+    antigo.ano_lancamento = 1993
+    novo = Jogo("Hades", "Rogue-like", "PC")
+    novo.ano_lancamento = 2020
+    sem_ano = Jogo("Celeste", "Plataforma", "PC")
+
+    for jogo in (antigo, sem_ano, novo):
+        colecao.adicionar_jogo(jogo)
+
+    titulos = [j.titulo for j in colecao.ordenar_por_ano()]
+
+    assert titulos == ["Hades", "Doom", "Celeste"]
+
+
+def test_getter_jogos_retorna_copia():
+    """Garante o encapsulamento: alterar a lista devolvida não altera a coleção."""
+    colecao = Colecao("Geral")
+    colecao.adicionar_jogo(Jogo("Doom", "FPS", "PC"))
+
+    colecao.jogos.clear()
+
+    assert colecao.total_jogos() == 1
