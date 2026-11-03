@@ -253,7 +253,7 @@ Para rodar os testes automatizados do projeto, execute o comando abaixo no termi
 pytest -q
 
 ```
-###  O projeto conta com 40 testes automatizados validados via pytest, cobrindo casos felizes e de erro:
+###  O projeto conta com 54 testes automatizados validados via pytest, cobrindo casos felizes e de erro:
 
 
 ## Estrutura do Projeto
