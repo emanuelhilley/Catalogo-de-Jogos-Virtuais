@@ -1,144 +1,112 @@
+"""Testes automatizados para a persistência em JSON (persistencia.py)."""
+
 import json
-import os
-from src.models.jogo import Jogo, JogoPc, JogoConsole, JogoMobile
+from datetime import date
+from src.models.jogo import Jogo, JogoCampanhaCoop
 from src.models.colecao import Colecao
 from src.models.usuario import Usuario
+from src.utils.persistencia import (
+    salvar_colecoes,
+    carregar_colecoes,
+    salvar_usuario,
+    carregar_usuario
+)
 
-def jogo_para_dict(jogo: Jogo) -> dict:
-    """Converte uma instância de Jogo ou subclasse num dicionário."""
-    dados = {
-        "tipo": jogo.__class__.__name__,
-        "titulo": jogo.titulo,
-        "genero": jogo.genero,
-        "plataforma": jogo.plataforma,
-        "status": jogo.status,
-        "horas_jogadas": jogo.horas_jogadas,
-        "avaliacao": jogo.avaliacao
-    }
-    if isinstance(jogo, JogoPc):
-        dados["requisitos_minimos"] = jogo.requisitos_minimos
-        dados["loja_digital"] = jogo.loja_digital
-    elif isinstance(jogo, JogoConsole):
-        dados["nome_console"] = jogo.nome_console
-        dados["midia_fisica"] = jogo.midia_fisica
-    elif isinstance(jogo, JogoMobile):
-        dados["tamanho_mb"] = jogo.tamanho_mb
-        dados["compras_no_app"] = jogo.compras_no_app
-    return dados
 
-def dict_para_jogo(dados: dict) -> Jogo:
-    """Recria um objeto Jogo a partir de um dicionário."""
-    tipo = dados.get("tipo", "Jogo")
-    if tipo == "JogoPc":
-        jogo = JogoPc(
-            titulo=dados["titulo"],
-            genero=dados["genero"],
-            requisitos_minimos=dados.get("requisitos_minimos", ""),
-            loja_digital=dados.get("loja_digital", "Steam")
-        )
-    elif tipo == "JogoConsole":
-        jogo = JogoConsole(
-            titulo=dados["titulo"],
-            genero=dados["genero"],
-            nome_console=dados.get("nome_console", "Console"),
-            midia_fisica=dados.get("midia_fisica", False)
-        )
-    elif tipo == "JogoMobile":
-        jogo = JogoMobile(
-            titulo=dados["titulo"],
-            genero=dados["genero"],
-            tamanho_mb=dados.get("tamanho_mb", 0.0),
-            compras_no_app=dados.get("compras_no_app", True)
-        )
-    else:
-        jogo = Jogo(
-            titulo=dados["titulo"],
-            genero=dados["genero"],
-            plataforma=dados.get("plataforma", "Outra")
-        )
-    
-    horas = dados.get("horas_jogadas", 0.0)
-    if horas > 0:
-        jogo.atualizar_progresso(horas)
-    status = dados.get("status", "NÃO INICIADO")
-    if status:
-        jogo.status = status
-    if dados.get("avaliacao") is not None and jogo.status == "FINALIZADO":
-        jogo.avaliar(dados["avaliacao"])
-    return jogo
+def pegar_geral(colecoes: list[Colecao]) -> Colecao:
+    """Auxiliar: devolve a coleção 'Geral' de uma lista de coleções."""
+    return next(c for c in colecoes if c.nome == "Geral")
 
-def garantir_colecoes_padrao(colecoes: list[Colecao]) -> list[Colecao]:
-    """Garante que as coleções 'Geral' e 'Favoritos' existam e que 'Geral' contenha todos os jogos."""
-    col_geral = next((c for c in colecoes if c.nome.lower() == "geral"), None)
-    if not col_geral:
-        col_geral = Colecao("Geral")
-        colecoes.insert(0, col_geral)
 
-    col_fav = next((c for c in colecoes if c.nome.lower() == "favoritos"), None)
-    if not col_fav:
-        col_fav = Colecao("Favoritos")
-        colecoes.append(col_fav)
+def test_persistencia_preserva_tipo_e_campos(tmp_path):
+    """Testa se salvar e carregar mantém a classe do jogo, as datas e os campos específicos."""
+    caminho = str(tmp_path / "colecoes.json")
+    jogo = JogoCampanhaCoop("It Takes Two", "Aventura", "PC", 2)
+    jogo.ano_lancamento = 2021
+    jogo.adicionar_participante("Ana")
+    jogo.atualizar_progresso(5.0)
+    jogo.finalizar()
+    jogo.avaliar(9.5)
+    geral = Colecao("Geral")
+    geral.adicionar_jogo(jogo)
 
-    # Sincroniza todos os jogos cadastrados nas outras coleções para a coleção Geral
-    titulos_geral = {j.titulo.lower() for j in col_geral.listar_jogos()}
-    for col in colecoes:
-        if col.nome.lower() == "geral":
-            continue
-        for jogo in col.listar_jogos():
-            if jogo.titulo.lower() not in titulos_geral:
-                col_geral.adicionar_jogo(jogo)
-                titulos_geral.add(jogo.titulo.lower())
+    salvar_colecoes([geral], caminho)
+    carregado = pegar_geral(carregar_colecoes(caminho)).buscar_por_titulo("It Takes Two")
 
-    return colecoes
+    assert isinstance(carregado, JogoCampanhaCoop)
+    assert carregado.max_jogadores == 2
+    assert carregado.participantes_frequentes == ["Ana"]
+    assert carregado.ano_lancamento == 2021
+    assert carregado.status == "FINALIZADO"
+    assert carregado.avaliacao == 9.5
+    assert carregado.data_termino == date.today()
 
-def salvar_colecoes(colecoes: list[Colecao], caminho_arquivo: str = "data/colecoes.json") -> None:
-    """Salva a lista de coleções no arquivo JSON garantindo a presença das coleções padrão."""
-    colecoes = garantir_colecoes_padrao(colecoes)
-    os.makedirs(os.path.dirname(caminho_arquivo), exist_ok=True)
-    dados_totais = []
-    for col in colecoes:
-        dados_col = {
-            "nome": col.nome,
-            "jogos": [jogo_para_dict(j) for j in col.listar_jogos()]
-        }
-        dados_totais.append(dados_col)
-    with open(caminho_arquivo, "w", encoding="utf-8") as f:
-        json.dump(dados_totais, f, indent=4, ensure_ascii=False)
 
-def carregar_colecoes(caminho_arquivo: str = "data/colecoes.json") -> list[Colecao]:
-    """Carrega as coleções e assegura a existência de 'Geral' e 'Favoritos'."""
-    colecoes = []
-    if os.path.exists(caminho_arquivo):
-        with open(caminho_arquivo, "r", encoding="utf-8") as f:
-            dados_totais = json.load(f)
-        for dados_col in dados_totais:
-            col = Colecao(dados_col["nome"])
-            for dados_jogo in dados_col.get("jogos", []):
-                jogo = dict_para_jogo(dados_jogo)
-                col.adicionar_jogo(jogo)
-            colecoes.append(col)
+def test_persistencia_nao_altera_datas_ao_carregar(tmp_path):
+    """Garante que carregar um jogo não troca a data de início salva pela data de hoje."""
+    caminho = str(tmp_path / "colecoes.json")
+    jogo = Jogo("Hades", "Rogue-like", "PC")
+    jogo.atualizar_progresso(3.0)
+    jogo.data_inicio = date(2025, 1, 10)
+    geral = Colecao("Geral")
+    geral.adicionar_jogo(jogo)
 
-    return garantir_colecoes_padrao(colecoes)
+    salvar_colecoes([geral], caminho)
+    carregado = pegar_geral(carregar_colecoes(caminho)).buscar_por_titulo("Hades")
 
-def salvar_usuario(usuario: Usuario, caminho_arquivo: str = "data/usuario.json") -> None:
-    """Salva os dados do perfil do usuário em formato JSON."""
-    os.makedirs(os.path.dirname(caminho_arquivo), exist_ok=True)
-    dados = {
-        "nome": usuario.nome,
-        "email": usuario.email,
-        "meta_jogos_ano": usuario.meta_jogos_ano
-    }
-    with open(caminho_arquivo, "w", encoding="utf-8") as f:
-        json.dump(dados, f, indent=4, ensure_ascii=False)
+    assert carregado.data_inicio == date(2025, 1, 10)
+    assert carregado.horas_jogadas == 3.0
+    assert carregado.status == "JOGANDO"
 
-def carregar_usuario(caminho_arquivo: str = "data/usuario.json") -> Usuario | None:
-    """Carrega os dados do perfil do usuário do arquivo JSON."""
-    if not os.path.exists(caminho_arquivo):
-        return None
-    with open(caminho_arquivo, "r", encoding="utf-8") as f:
-        dados = json.load(f)
-        return Usuario(
-            nome=dados["nome"],
-            email=dados["email"],
-            meta_jogos_ano=dados.get("meta_jogos_ano", 0)
-        )
+
+def test_geral_espelha_mesmo_titulo_em_plataformas_diferentes(tmp_path):
+    """Garante que dois jogos de mesmo título e plataformas diferentes entram na Geral."""
+    caminho = str(tmp_path / "colecoes.json")
+    favoritos = Colecao("Favoritos")
+    favoritos.adicionar_jogo(Jogo("Doom", "FPS", "PC"))
+    favoritos.adicionar_jogo(Jogo("Doom", "FPS", "Console"))
+
+    salvar_colecoes([Colecao("Geral"), favoritos], caminho)
+    geral = pegar_geral(carregar_colecoes(caminho))
+
+    assert geral.total_jogos() == 2
+
+
+def test_carregar_arquivo_antigo_sem_campos_novos(tmp_path):
+    """Testa se um JSON antigo (sem ano e datas) continua carregando normalmente."""
+    caminho = tmp_path / "colecoes.json"
+    dados = [{
+        "nome": "Geral",
+        "jogos": [{
+            "tipo": "Jogo", "titulo": "Doom", "genero": "FPS", "plataforma": "PC",
+            "status": "JOGANDO", "horas_jogadas": 3.0, "avaliacao": None
+        }]
+    }]
+    caminho.write_text(json.dumps(dados), encoding="utf-8")
+
+    jogo = pegar_geral(carregar_colecoes(str(caminho))).buscar_por_titulo("Doom")
+
+    assert jogo.horas_jogadas == 3.0
+    assert jogo.ano_lancamento is None
+    assert jogo.data_inicio is None
+
+
+def test_carregar_sem_arquivo_cria_colecoes_padrao(tmp_path):
+    """Testa se, sem arquivo salvo, as coleções 'Geral' e 'Favoritos' são criadas vazias."""
+    colecoes = carregar_colecoes(str(tmp_path / "nao_existe.json"))
+
+    assert [c.nome for c in colecoes] == ["Geral", "Favoritos"]
+    assert all(c.total_jogos() == 0 for c in colecoes)
+
+
+def test_salvar_e_carregar_usuario(tmp_path):
+    """Testa se os dados do perfil do usuário são salvos e carregados corretamente."""
+    caminho = str(tmp_path / "usuario.json")
+
+    salvar_usuario(Usuario("Ana", "ana@email.com", meta_jogos_ano=3), caminho)
+    usuario = carregar_usuario(caminho)
+
+    assert usuario.nome == "Ana"
+    assert usuario.email == "ana@email.com"
+    assert usuario.meta_jogos_ano == 3
+    assert carregar_usuario(str(tmp_path / "nao_existe.json")) is None
