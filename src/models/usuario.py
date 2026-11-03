@@ -64,11 +64,12 @@ class Usuario:
 # -=-=-=      REGRAS DE NEGÓCIO E METAS      -=-=-=
 
     def total_jogos_finalizados(self) -> int:
-        """Conta quantos jogos das coleções foram finalizados."""
-        total = 0
+        """Conta quantos jogos das coleções foram finalizados. (um jogo que está em várias coleções conta só uma vez)."""
+        finalizados = set()
         for col in self._colecoes:
-            total += len(col.filtrar_por_status("FINALIZADO"))
-        return total
+            for jogo in col.filtrar_por_status("FINALIZADO"):
+                finalizados.add((jogo.titulo.lower(), jogo.plataforma.lower()))
+        return len(finalizados)
 
     def progresso_meta(self) -> dict:
         """Retorna as estatísticas do progresso em relação à meta anual."""

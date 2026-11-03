@@ -1,0 +1,90 @@
+[
+    {
+        "nome": "Geral",
+        "jogos": [
+            {
+                "tipo": "JogoConsole",
+                "titulo": "God of ware",
+                "genero": "Mundo aberto",
+                "plataforma": "Console",
+                "status": "NÃO INICIADO",
+                "horas_jogadas": 0.0,
+                "avaliacao": null,
+                "nome_console": "Console",
+                "midia_fisica": false
+            },
+            {
+                "tipo": "Jogo",
+                "titulo": "Minecraft",
+                "genero": "Construir",
+                "plataforma": "outra",
+                "status": "NÃO INICIADO",
+                "horas_jogadas": 0.0,
+                "avaliacao": null
+            },
+            {
+                "tipo": "JogoConsole",
+                "titulo": "GTA 5",
+                "genero": "Livre",
+                "plataforma": "Console",
+                "status": "NÃO INICIADO",
+                "horas_jogadas": 0.0,
+                "avaliacao": null,
+                "nome_console": "Console",
+                "midia_fisica": false
+            },
+            {
+                "tipo": "JogoCampanha",
+                "titulo": "Legacy",
+                "genero": "Ação",
+                "plataforma": "Console",
+                "status": "NÃO INICIADO",
+                "horas_jogadas": 0.0,
+                "avaliacao": null,
+                "capitulos_concluidos": 0,
+                "percentual_conclusao": 0.0
+            }
+        ]
+    },
+    {
+        "nome": "Favoritos",
+        "jogos": [
+            {
+                "tipo": "JogoConsole",
+                "titulo": "God of ware",
+                "genero": "Mundo aberto",
+                "plataforma": "Console",
+                "status": "NÃO INICIADO",
+                "horas_jogadas": 0.0,
+                "avaliacao": null,
+                "nome_console": "Console",
+                "midia_fisica": false
+            },
+            {
+                "tipo": "Jogo",
+                "titulo": "Minecraft",
+                "genero": "Construir",
+                "plataforma": "outra",
+                "status": "NÃO INICIADO",
+                "horas_jogadas": 0.0,
+                "avaliacao": null
+            }
+        ]
+    },
+    {
+        "nome": "Jogos meus",
+        "jogos": [
+            {
+                "tipo": "JogoConsole",
+                "titulo": "GTA 5",
+                "genero": "Livre",
+                "plataforma": "Console",
+                "status": "NÃO INICIADO",
+                "horas_jogadas": 0.0,
+                "avaliacao": null,
+                "nome_console": "Console",
+                "midia_fisica": false
+            }
+        ]
+    }
+]
