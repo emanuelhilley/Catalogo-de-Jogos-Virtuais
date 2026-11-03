@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import date
 from src.models.jogo import (
     Jogo,
     JogoPc,
@@ -22,7 +23,10 @@ def jogo_para_dict(jogo: Jogo) -> dict:
         "plataforma": jogo.plataforma,
         "status": jogo.status,
         "horas_jogadas": jogo.horas_jogadas,
-        "avaliacao": jogo.avaliacao
+        "avaliacao": jogo.avaliacao,
+        "ano_lancamento": jogo.ano_lancamento,
+        "data_inicio": jogo.data_inicio.isoformat() if jogo.data_inicio else None, # date não vai direto pro JSON, vira texto
+        "data_termino": jogo.data_termino.isoformat() if jogo.data_termino else None
     }
 
     # Atributos específicos por Plataforma
@@ -50,6 +54,7 @@ def jogo_para_dict(jogo: Jogo) -> dict:
     if isinstance(jogo, JogoCooperativo):
         dados["sessoes_cooperativas"] = getattr(jogo, "sessoes_cooperativas", 0)
         dados["max_jogadores"] = getattr(jogo, "max_jogadores", 4)
+        dados["participantes_frequentes"] = list(getattr(jogo, "participantes_frequentes", []))
 
     if isinstance(jogo, JogoCampanhaCoop):
         dados["modo_progresso_compartilhado"] = getattr(jogo, "modo_progresso_compartilhado", True)
@@ -107,6 +112,7 @@ def dict_para_jogo(dados: dict) -> Jogo:
             max_jogadores=dados.get("max_jogadores", 4)
         )
         jogo.sessoes_cooperativas = dados.get("sessoes_cooperativas", 0)
+        jogo.participantes_frequentes = dados.get("participantes_frequentes", [])
     elif tipo == "JogoCampanhaCoop":
         jogo = JogoCampanhaCoop(
             titulo=dados["titulo"],
@@ -115,6 +121,10 @@ def dict_para_jogo(dados: dict) -> Jogo:
             max_jogadores=dados.get("max_jogadores", 4),
             progresso_compartilhado=dados.get("modo_progresso_compartilhado", True)
         )
+        jogo.capitulos_concluidos = dados.get("capitulos_concluidos", 0)
+        jogo.percentual_conclusao = dados.get("percentual_conclusao", 0.0)
+        jogo.sessoes_cooperativas = dados.get("sessoes_cooperativas", 0)
+        jogo.participantes_frequentes = dados.get("participantes_frequentes", [])
     else:
         jogo = Jogo(
             titulo=dados["titulo"],
@@ -122,14 +132,17 @@ def dict_para_jogo(dados: dict) -> Jogo:
             plataforma=dados.get("plataforma", "Outra")
         )
 
-    horas = dados.get("horas_jogadas", 0.0)
-    if horas > 0:
-        jogo.atualizar_progresso(horas)
-    status = dados.get("status", "NÃO INICIADO")
-    if status:
-        jogo.status = status
+    # restaura o que foi salvo direto, sem usar atualizar_progresso (ele mudaria o status e gravaria a data de hoje)
+    jogo.horas_jogadas = dados.get("horas_jogadas", 0.0) # usa o setter para validar
+    jogo.status = dados.get("status", "NÃO INICIADO")
     if dados.get("avaliacao") is not None and jogo.status == "FINALIZADO":
         jogo.avaliar(dados["avaliacao"])
+
+    jogo.ano_lancamento = dados.get("ano_lancamento")
+    if dados.get("data_inicio"):
+        jogo.data_inicio = date.fromisoformat(dados["data_inicio"])
+    if dados.get("data_termino"):
+        jogo.data_termino = date.fromisoformat(dados["data_termino"])
     return jogo
 
 def garantir_colecoes_padrao(colecoes: list[Colecao]) -> list[Colecao]:
@@ -147,14 +160,12 @@ def garantir_colecoes_padrao(colecoes: list[Colecao]) -> list[Colecao]:
         col_fav = Colecao("Favoritos")
         colecoes.append(col_fav)
 
-    titulos_geral = {j.titulo.lower() for j in col_geral.listar_jogos()}
     for col in colecoes:
         if col.nome.lower() == "geral":
             continue
         for jogo in col.listar_jogos():
-            if jogo.titulo.lower() not in titulos_geral:
+            if jogo not in col_geral.listar_jogos(): # usa o __eq__ (título + plataforma)
                 col_geral.adicionar_jogo(jogo)
-                titulos_geral.add(jogo.titulo.lower())
 
     return colecoes
 
@@ -178,10 +189,20 @@ def carregar_colecoes(caminho_arquivo: str = "data/colecoes.json") -> list[Colec
     if os.path.exists(caminho_arquivo):
         with open(caminho_arquivo, "r", encoding="utf-8") as f:
             dados_totais = json.load(f)
+
+        # 'Geral' é carregada primeiro: se uma cópia divergir em outra coleção, vale a da Geral.
+        dados_totais.sort(key=lambda d: d["nome"].lower() != "geral")
+
+        # O mesmo jogo (título + plataforma) em várias coleções vira UM único objeto.
+        # Assim, atualizar o jogo em qualquer coleção atualiza em todas (como logo após adicionar).
+        ja_carregados: dict[tuple[str, str], Jogo] = {}
+
         for dados_col in dados_totais:
             col = Colecao(dados_col["nome"])
             for dados_jogo in dados_col.get("jogos", []):
                 jogo = dict_para_jogo(dados_jogo)
+                chave = (jogo.titulo.lower(), jogo.plataforma.lower())
+                jogo = ja_carregados.setdefault(chave, jogo)
                 col.adicionar_jogo(jogo)
             colecoes.append(col)
 
