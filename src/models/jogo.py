@@ -243,7 +243,7 @@ class JogoCooperativo(CooperativoMixin, Jogo):
         super().__init__(titulo, genero, plataforma, max_jogadores=max_jogadores)
 
 
-class JogoCampanhaCoop(CampanhaMixin, CooperativoMixin, Jogo):
+class JogoCampanhaCoop(JogoCampanha, JogoCooperativo):
     """
     Destinado a jogos de trabalho em equipe junto a modo campanha
 
@@ -252,7 +252,7 @@ class JogoCampanhaCoop(CampanhaMixin, CooperativoMixin, Jogo):
     """
 
     def __init__(self, titulo: str, genero: str, plataforma: str, max_jogadores: int, progresso_compartilhado: bool = True): # se não for informado que o jogo fica salvo para os dois jogadores, retorna True
-        # um único super() percorre toda a cadeia (MRO): CampanhaMixin -> CooperativoMixin -> Jogo
+        # um único super() percorre toda a cadeia (MRO): JogoCampanha -> CampanhaMixin -> JogoCooperativo -> CooperativoMixin -> Jogo
         super().__init__(titulo, genero, plataforma, max_jogadores=max_jogadores)
         self.modo_progresso_compartilhado = progresso_compartilhado
 
