@@ -295,6 +295,7 @@ pytest -q
 │   ├── test_colecao.py
 │   ├── test_jogo.py
 │   ├── test_persistencia.py
+│   ├── test_relatorio.py
 │   ├── test_semana4.py
 │   ├── test_semana5.py
 │   └── test_usuario.py
