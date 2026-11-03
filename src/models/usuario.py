@@ -38,8 +38,22 @@ class Usuario:
     @email.setter
     def email(self, valor: str) -> None:
         """Setter: Valida o formato básico do email."""
-        if not "@" in valor or "." not in valor:
-            raise ValueError("O e-mail fornecido é inválido.")
+        if not isinstance(valor,str):
+            raise ValueError("O email fornecido deve ser do tipo texto.")
+        valor = valor.strip()
+        if " " in valor:
+            raise ValueError("Não pode ter espaço no email.")
+        if valor.count("@") != 1:
+            raise ValueError("O email só pode contar 1 @.")
+        usuario_local, dominio = valor.split("@")
+        if not usuario_local or not dominio:
+            raise ValueError("Erro no email fornecido: usuário ou domínio ausente")
+        if not "." in dominio:
+            raise ValueError("Erro no email fornecido: Domínio precisa de uma extensão")
+        if ".." in valor:
+            raise ValueError("Erro no email fornecido: sequencia de pontos.")
+        if usuario_local.startswith(".") or usuario_local.endswith(".") or dominio.startswith(".") or dominio.endswith("."):
+            raise ValueError("Erro no email fornecido: não pode haver pontos nas extremidades")
         self._email = valor
 
     @property
@@ -50,11 +64,12 @@ class Usuario:
 # -=-=-=      REGRAS DE NEGÓCIO E METAS      -=-=-=
 
     def total_jogos_finalizados(self) -> int:
-        """Conta quantos jogos das coleções foram finalizados."""
-        total = 0
+        """Conta quantos jogos das coleções foram finalizados. (um jogo que está em várias coleções conta só uma vez)."""
+        finalizados = set()
         for col in self._colecoes:
-            total += len(col.filtrar_por_status("FINALIZADO"))
-        return total
+            for jogo in col.filtrar_por_status("FINALIZADO"):
+                finalizados.add((jogo.titulo.lower(), jogo.plataforma.lower()))
+        return len(finalizados)
 
     def progresso_meta(self) -> dict:
         """Retorna as estatísticas do progresso em relação à meta anual."""

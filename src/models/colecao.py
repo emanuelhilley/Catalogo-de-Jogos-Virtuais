@@ -1,6 +1,7 @@
 """ Organização e gerenciamento da lista de jogos (CRUD)."""
 from typing import Optional
 from src.models.jogo import Jogo
+from src.models.excecoes import JogoDuplicadoError
 
 class Colecao: 
     """ lista personalida do usuário """
@@ -23,13 +24,13 @@ class Colecao:
         """ 
         Adiciona um objeto Jogo à coleção (Create).
 
-        Levanta ValueError se o jogo já existir na coleção (baseado no __eq__).
+        Levanta JogoDuplicadoError se o jogo já existir na coleção (baseado no __eq__).
         """
         if not isinstance(jogo,Jogo):
             raise TypeError("O objeto a ser adicionado deve ser do tipo jogo.")
 
         if jogo in self._jogos:
-            raise ValueError(f"O jogo '{jogo.titulo}' já está presente na coleção.")
+            raise JogoDuplicadoError(f"O jogo '{jogo.titulo}' já está presente na coleção.")
 
         self._jogos.append(jogo)
 
@@ -57,6 +58,14 @@ class Colecao:
                 return jogo
         return None
 
+    def buscar_por_parte_do_titulo(self, trecho: str) -> list[Jogo]:
+        """Retorna todos os jogos cujo título contém o trecho informado (ex: 'craft' encontra 'Minecraft')."""
+        jogos_encontrados = []
+        for jogo in self._jogos:
+            if trecho.lower() in jogo.titulo.lower(): # 'in' verifica se o trecho está dentro do título
+                jogos_encontrados.append(jogo)
+        return jogos_encontrados
+
 
     def atualizar_jogo(self, titulo:str, **kwargs) -> bool: 
         # **kwargs permite que passe qualquer quantidade de alterações de uma só vez, sem precisares criar uma função para cada tipo de alteração.
@@ -76,7 +85,7 @@ class Colecao:
     
     # -=-=-=     FILTROS E ORDENAÇÕES    -=-=-=
 
-    # Todos os três métodos de filtragem seguem a mesma lógica básica: 
+    # Todos os métodos de filtragem seguem a mesma lógica básica: 
     # criar uma lista vazia, percorrer os jogos um a um e guardar apenas os que correspondem ao critério.
 
     def filtrar_por_genero(self, genero: str) -> list[Jogo]:
@@ -103,6 +112,14 @@ class Colecao:
                 jogos_filtrados.append(jogo)
         return jogos_filtrados
 
+    def filtrar_por_nota_minima(self, nota_minima: float) -> list[Jogo]:
+        """Retorna os jogos avaliados com nota maior ou igual à nota mínima informada."""
+        jogos_filtrados = []
+        for jogo in self._jogos:
+            if jogo.avaliacao is not None and jogo.avaliacao >= nota_minima: # jogos sem nota ficam de fora
+                jogos_filtrados.append(jogo)
+        return jogos_filtrados
+
     def ordenar_por_titulo(self) -> list[Jogo]:
         """Retorna a lista de jogos ordenada alfabeticamente pelo título."""
         def obter_titulo(jogo):
@@ -125,6 +142,15 @@ class Colecao:
             return 0.0
 
         return sorted(self._jogos, key=obter_avaliacao, reverse=decrescente)
+
+    def ordenar_por_ano(self, decrescente: bool = True) -> list[Jogo]:
+        """Retorna a lista de jogos ordenada pelo ano de lançamento."""
+        def obter_ano(jogo):
+            if jogo.ano_lancamento is not None:
+                return jogo.ano_lancamento
+            return 0 # jogos sem ano informado ficam no fim (ordem decrescente)
+
+        return sorted(self._jogos, key=obter_ano, reverse=decrescente)
 
     # -=-=-= MÉTODOS ESPECIAIS E ESTATÍSTICAS -=-=-=
 
