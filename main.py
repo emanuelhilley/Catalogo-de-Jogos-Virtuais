@@ -14,7 +14,7 @@ from src.utils.settings import carregar_settings
 def tratar_relatorio(args, colecoes, config) -> None:
     """Exibe os relatórios do catálogo."""
     if args.acao == "geral":
-        exibir_relatorio_terminal(colecoes)
+        exibir_relatorio_terminal(colecoes, config["generos_favoritos"])
 
 
 # cada comando principal aponta para a função que trata as suas ações
